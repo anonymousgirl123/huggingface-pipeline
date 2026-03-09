@@ -1,11 +1,6 @@
-# How the program flow should work
-CLI → ResilienceBot wrapper → HFLocalClient → FLAN-T5 → Checklist output
+## 📄 Project Concept Showcase
 
-#CLI
-'''
-python -m app.main "My API has intermittent 504 timeouts. Give a troubleshooting checklist."
+A visual explanation of the architecture and design decisions is available here:
 
-'''
-
-<script src="https://gist.github.com/anonymousgirl123/5e87f5623d4481993239f317d8c2a067"></script>
+🔗 **[ResilienceBot Concept Page](https://gist.github.com/anonymousgirl123/5e87f5623d4481993239f317d8c2a067)**
 
