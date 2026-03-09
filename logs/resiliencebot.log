@@ -1,0 +1,3 @@
+2026-03-09 06:50:36,316 | INFO | HFLocalClient | Loading model: google/flan-t5-large
+2026-03-09 06:55:52,954 | INFO | HFLocalClient | Loading model: google/flan-t5-large
+2026-03-09 06:56:00,291 | INFO | HFLocalClient | Model loaded in 7.34s
