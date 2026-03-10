@@ -1,0 +1,28 @@
+Title: Runbook - Network, DNS, and TLS Troubleshooting
+Type: runbook
+Tags: dns, tls, handshake, certificates, network
+
+DNS Troubleshooting Procedure:
+Step 1: Verify hostname resolution.
+nslookup api.internal.company.com
+dig api.internal.company.com
+
+Step 2: Measure DNS lookup latency across regions.
+Step 3: Check DNS record TTL values for expected propagation behavior.
+
+TLS Troubleshooting:
+TLS handshake failures may appear as intermittent connection resets or SSL errors.
+
+Diagnostic Commands:
+openssl s_client -connect api.internal.company.com:443
+curl -v https://api.internal.company.com
+
+Things to verify:
+- certificate validity and expiration
+- certificate authority chain correctness
+- TLS protocol version compatibility
+
+Operational Best Practices:
+- automate certificate renewal
+- enable TLS monitoring alerts
+- rotate certificates before expiration

@@ -1,0 +1,194 @@
+[
+  {
+    "row": 0,
+    "chunk_id": "incident_504_timeouts.txt::chunk_0",
+    "source": "incident_504_timeouts.txt",
+    "text": "Title: Intermittent 504 Gateway Timeouts\nType: incident\nTags: gateway, timeouts, upstream, latency\n\nSymptoms:\n- Spike in 504s at the API gateway\n- Upstream latency increases\n- Retries amplify traffic"
+  },
+  {
+    "row": 1,
+    "chunk_id": "incident_504_timeouts.txt::chunk_1",
+    "source": "incident_504_timeouts.txt",
+    "text": "ncy increases\n- Retries amplify traffic\n\nCommon causes:\n- Connection pool exhaustion\n- Slow downstream dependency (DB, cache, third-party)\n- Timeout mismatch between gateway and upstream service\n\nOper"
+  },
+  {
+    "row": 2,
+    "chunk_id": "incident_504_timeouts.txt::chunk_2",
+    "source": "incident_504_timeouts.txt",
+    "text": "tween gateway and upstream service\n\nOperational Observations:\nDuring peak load windows the gateway started returning HTTP 504 responses.\nMetrics showed that request latency between the gateway and the"
+  },
+  {
+    "row": 3,
+    "chunk_id": "incident_504_timeouts.txt::chunk_3",
+    "source": "incident_504_timeouts.txt",
+    "text": "uest latency between the gateway and the upstream\norder-processing service increased gradually over 15 minutes before the\nfirst timeout errors appeared.\n\nGateway logs indicated that connections to the"
+  },
+  {
+    "row": 4,
+    "chunk_id": "incident_504_timeouts.txt::chunk_4",
+    "source": "incident_504_timeouts.txt",
+    "text": "y logs indicated that connections to the upstream service were\nremaining open for longer than expected. As connection pools filled,\nnew requests were forced to wait for a free connection slot.\n\nCommon"
+  },
+  {
+    "row": 5,
+    "chunk_id": "incident_504_timeouts.txt::chunk_5",
+    "source": "incident_504_timeouts.txt",
+    "text": "wait for a free connection slot.\n\nCommon Diagnostic Steps:\n1. Check upstream latency dashboards.\n2. Inspect connection pool usage metrics.\n3. Review gateway timeout configuration.\n4. Look for recent d"
+  },
+  {
+    "row": 6,
+    "chunk_id": "incident_504_timeouts.txt::chunk_6",
+    "source": "incident_504_timeouts.txt",
+    "text": "eout configuration.\n4. Look for recent deployment changes in upstream services.\n\nCommands Used:\nkubectl logs gateway-service\nkubectl top pods\ncurl -v https://api.internal/orders/health\n\nPotential Root"
+  },
+  {
+    "row": 7,
+    "chunk_id": "incident_504_timeouts.txt::chunk_7",
+    "source": "incident_504_timeouts.txt",
+    "text": "i.internal/orders/health\n\nPotential Root Causes:\n- upstream service thread starvation\n- inefficient database queries\n- network congestion between gateway and service mesh\n- incorrect timeout configura"
+  },
+  {
+    "row": 8,
+    "chunk_id": "incident_504_timeouts.txt::chunk_8",
+    "source": "incident_504_timeouts.txt",
+    "text": "rvice mesh\n- incorrect timeout configuration between gateway and backend\n\nMitigation:\n- Reduce retry aggressiveness\n- Increase upstream pool limits\n- Add DB index for slow queries\n- Align timeouts acr"
+  },
+  {
+    "row": 9,
+    "chunk_id": "incident_504_timeouts.txt::chunk_9",
+    "source": "incident_504_timeouts.txt",
+    "text": "ex for slow queries\n- Align timeouts across gateway/upstream\n\nLong-Term Improvements:\nIntroduce request queue limits at the gateway.\nMonitor connection pool usage with alerts.\nImplement circuit breake"
+  },
+  {
+    "row": 10,
+    "chunk_id": "incident_504_timeouts.txt::chunk_10",
+    "source": "incident_504_timeouts.txt",
+    "text": "ge with alerts.\nImplement circuit breaker patterns to isolate slow services."
+  },
+  {
+    "row": 11,
+    "chunk_id": "incident_retry_storm.txt::chunk_0",
+    "source": "incident_retry_storm.txt",
+    "text": "Title: Retry Storm Causing Cascading Failures\nType: incident\nTags: retries, backoff, jitter, circuit-breaker\n\nSymptoms:\n- Elevated 429/503 responses\n- Rapid increase in request volume\n- Downstream sat"
+  },
+  {
+    "row": 12,
+    "chunk_id": "incident_retry_storm.txt::chunk_1",
+    "source": "incident_retry_storm.txt",
+    "text": "rease in request volume\n- Downstream saturation (CPU/memory)\n\nDetailed Timeline:\n12:05 - API error rate begins increasing.\n12:07 - Clients retry requests immediately after failures.\n12:09 - Downstream"
+  },
+  {
+    "row": 13,
+    "chunk_id": "incident_retry_storm.txt::chunk_2",
+    "source": "incident_retry_storm.txt",
+    "text": "ately after failures.\n12:09 - Downstream services begin saturating CPU and memory.\n12:11 - Retry traffic exceeds normal traffic by 4x.\n\nRetry storms typically occur when multiple clients retry request"
+  },
+  {
+    "row": 14,
+    "chunk_id": "incident_retry_storm.txt::chunk_3",
+    "source": "incident_retry_storm.txt",
+    "text": "ccur when multiple clients retry requests at the\nsame time without introducing randomness (jitter) in retry timing.\n\nDetection Signals:\n- Sudden spike in identical requests\n- Repeated request IDs acro"
+  },
+  {
+    "row": 15,
+    "chunk_id": "incident_retry_storm.txt::chunk_4",
+    "source": "incident_retry_storm.txt",
+    "text": "cal requests\n- Repeated request IDs across logs\n- Exponential increase in request rate\n- Elevated queue depths in downstream services\n\nTroubleshooting Steps:\n1. Inspect client retry configuration.\n2."
+  },
+  {
+    "row": 16,
+    "chunk_id": "incident_retry_storm.txt::chunk_5",
+    "source": "incident_retry_storm.txt",
+    "text": "Inspect client retry configuration.\n2. Check if retries include exponential backoff.\n3. Confirm jitter is enabled.\n4. Inspect circuit breaker configuration.\n\nExample Retry Policy:\nretry:\n  max_attemp"
+  },
+  {
+    "row": 17,
+    "chunk_id": "incident_retry_storm.txt::chunk_6",
+    "source": "incident_retry_storm.txt",
+    "text": "xample Retry Policy:\nretry:\n  max_attempts: 3\n  backoff: exponential\n  jitter: true\n\nMitigation:\n- Add exponential backoff with jitter\n- Reduce max retries\n- Introduce circuit breaker / bulkheads\n- Ad"
+  },
+  {
+    "row": 18,
+    "chunk_id": "incident_retry_storm.txt::chunk_7",
+    "source": "incident_retry_storm.txt",
+    "text": "troduce circuit breaker / bulkheads\n- Add rate limits at gateway"
+  },
+  {
+    "row": 19,
+    "chunk_id": "runbook_db_latency.txt::chunk_0",
+    "source": "runbook_db_latency.txt",
+    "text": "Title: Runbook - Database Latency Troubleshooting\nType: runbook\nTags: db, slow-queries, locks, indexing\n\nMonitoring Indicators:\n- p95/p99 query latency increases\n- CPU utilization rises\n- lock waits i"
+  },
+  {
+    "row": 20,
+    "chunk_id": "runbook_db_latency.txt::chunk_1",
+    "source": "runbook_db_latency.txt",
+    "text": "s\n- CPU utilization rises\n- lock waits increase\n- disk I/O wait increases\n- connection pool exhaustion\n\nKey metrics to observe:\n- query latency percentiles (p95, p99)\n- CPU utilization\n- disk I/O wait"
+  },
+  {
+    "row": 21,
+    "chunk_id": "runbook_db_latency.txt::chunk_2",
+    "source": "runbook_db_latency.txt",
+    "text": ", p99)\n- CPU utilization\n- disk I/O wait times\n- lock contention rates\n- number of active connections\n\nExample Diagnostic Queries (PostgreSQL):\nSELECT pid, query, state\nFROM pg_stat_activity\nWHERE sta"
+  },
+  {
+    "row": 22,
+    "chunk_id": "runbook_db_latency.txt::chunk_3",
+    "source": "runbook_db_latency.txt",
+    "text": "y, state\nFROM pg_stat_activity\nWHERE state != 'idle';\n\nSELECT query, calls, mean_exec_time\nFROM pg_stat_statements\nORDER BY mean_exec_time DESC\nLIMIT 10;\n\nOperational Checklist:\n1. Identify slow queri"
+  },
+  {
+    "row": 23,
+    "chunk_id": "runbook_db_latency.txt::chunk_4",
+    "source": "runbook_db_latency.txt",
+    "text": "tional Checklist:\n1. Identify slow queries from logs.\n2. Examine query execution plans.\n3. Verify indexes exist on filter columns.\n4. Review schema/query changes introduced in recent releases.\n\nCommon"
+  },
+  {
+    "row": 24,
+    "chunk_id": "runbook_db_latency.txt::chunk_5",
+    "source": "runbook_db_latency.txt",
+    "text": "s introduced in recent releases.\n\nCommon Causes:\n- missing indexes\n- inefficient joins\n- table scans on large datasets\n- connection pool exhaustion\n\nMitigation Options:\n- add appropriate indexes\n- tun"
+  },
+  {
+    "row": 25,
+    "chunk_id": "runbook_db_latency.txt::chunk_6",
+    "source": "runbook_db_latency.txt",
+    "text": "Options:\n- add appropriate indexes\n- tune query plans\n- reduce query complexity\n- introduce caching layer"
+  },
+  {
+    "row": 26,
+    "chunk_id": "runbook_tls_dns.txt::chunk_0",
+    "source": "runbook_tls_dns.txt",
+    "text": "Title: Runbook - Network, DNS, and TLS Troubleshooting\nType: runbook\nTags: dns, tls, handshake, certificates, network\n\nDNS Troubleshooting Procedure:\nStep 1: Verify hostname resolution.\nnslookup api.i"
+  },
+  {
+    "row": 27,
+    "chunk_id": "runbook_tls_dns.txt::chunk_1",
+    "source": "runbook_tls_dns.txt",
+    "text": "rify hostname resolution.\nnslookup api.internal.company.com\ndig api.internal.company.com\n\nStep 2: Measure DNS lookup latency across regions.\nStep 3: Check DNS record TTL values for expected propagatio"
+  },
+  {
+    "row": 28,
+    "chunk_id": "runbook_tls_dns.txt::chunk_2",
+    "source": "runbook_tls_dns.txt",
+    "text": "ecord TTL values for expected propagation behavior.\n\nTLS Troubleshooting:\nTLS handshake failures may appear as intermittent connection resets or SSL errors.\n\nDiagnostic Commands:\nopenssl s_client -con"
+  },
+  {
+    "row": 29,
+    "chunk_id": "runbook_tls_dns.txt::chunk_3",
+    "source": "runbook_tls_dns.txt",
+    "text": "agnostic Commands:\nopenssl s_client -connect api.internal.company.com:443\ncurl -v https://api.internal.company.com\n\nThings to verify:\n- certificate validity and expiration\n- certificate authority chai"
+  },
+  {
+    "row": 30,
+    "chunk_id": "runbook_tls_dns.txt::chunk_4",
+    "source": "runbook_tls_dns.txt",
+    "text": "expiration\n- certificate authority chain correctness\n- TLS protocol version compatibility\n\nOperational Best Practices:\n- automate certificate renewal\n- enable TLS monitoring alerts\n- rotate certifica"
+  },
+  {
+    "row": 31,
+    "chunk_id": "runbook_tls_dns.txt::chunk_5",
+    "source": "runbook_tls_dns.txt",
+    "text": "TLS monitoring alerts\n- rotate certificates before expiration"
+  }
+]
