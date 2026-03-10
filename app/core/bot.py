@@ -93,14 +93,22 @@ class ResilienceBot:
             "Checklist:\n"
         )
 
-        answer = self.client.generate(
-            prompt=prompt,
-            temperature=0.2,
+        # Build an LLMRequest and invoke the client.  Earlier versions of the
+        # code called `generate` with keyword arguments; the current client API
+        # accepts a single ``LLMRequest``.
+        from app.core.schemas import LLMRequest, ChatMessage
+
+        req = LLMRequest(
+            messages=[ChatMessage(role="user", content=prompt)],
             max_new_tokens=180,
+            temperature=0.2,
             top_p=0.9,
         )
 
-        cleaned = _clean_answer(answer)
-        final_text = cleaned if cleaned.strip() else answer.strip()
+        resp = self.client.generate(req)
+        answer_text = resp.text or ""
+
+        cleaned = _clean_answer(answer_text)
+        final_text = cleaned if cleaned.strip() else answer_text.strip()
 
         return BotResponse(text=final_text)
