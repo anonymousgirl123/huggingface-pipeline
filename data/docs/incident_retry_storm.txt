@@ -1,0 +1,41 @@
+Title: Retry Storm Causing Cascading Failures
+Type: incident
+Tags: retries, backoff, jitter, circuit-breaker
+
+Symptoms:
+- Elevated 429/503 responses
+- Rapid increase in request volume
+- Downstream saturation (CPU/memory)
+
+Detailed Timeline:
+12:05 - API error rate begins increasing.
+12:07 - Clients retry requests immediately after failures.
+12:09 - Downstream services begin saturating CPU and memory.
+12:11 - Retry traffic exceeds normal traffic by 4x.
+
+Retry storms typically occur when multiple clients retry requests at the
+same time without introducing randomness (jitter) in retry timing.
+
+Detection Signals:
+- Sudden spike in identical requests
+- Repeated request IDs across logs
+- Exponential increase in request rate
+- Elevated queue depths in downstream services
+
+Troubleshooting Steps:
+1. Inspect client retry configuration.
+2. Check if retries include exponential backoff.
+3. Confirm jitter is enabled.
+4. Inspect circuit breaker configuration.
+
+Example Retry Policy:
+retry:
+  max_attempts: 3
+  backoff: exponential
+  jitter: true
+
+Mitigation:
+- Add exponential backoff with jitter
+- Reduce max retries
+- Introduce circuit breaker / bulkheads
+- Add rate limits at gateway

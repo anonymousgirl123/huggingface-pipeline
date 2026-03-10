@@ -1,0 +1,45 @@
+Title: Runbook - Database Latency Troubleshooting
+Type: runbook
+Tags: db, slow-queries, locks, indexing
+
+Monitoring Indicators:
+- p95/p99 query latency increases
+- CPU utilization rises
+- lock waits increase
+- disk I/O wait increases
+- connection pool exhaustion
+
+Key metrics to observe:
+- query latency percentiles (p95, p99)
+- CPU utilization
+- disk I/O wait times
+- lock contention rates
+- number of active connections
+
+Example Diagnostic Queries (PostgreSQL):
+SELECT pid, query, state
+FROM pg_stat_activity
+WHERE state != 'idle';
+
+SELECT query, calls, mean_exec_time
+FROM pg_stat_statements
+ORDER BY mean_exec_time DESC
+LIMIT 10;
+
+Operational Checklist:
+1. Identify slow queries from logs.
+2. Examine query execution plans.
+3. Verify indexes exist on filter columns.
+4. Review schema/query changes introduced in recent releases.
+
+Common Causes:
+- missing indexes
+- inefficient joins
+- table scans on large datasets
+- connection pool exhaustion
+
+Mitigation Options:
+- add appropriate indexes
+- tune query plans
+- reduce query complexity
+- introduce caching layer

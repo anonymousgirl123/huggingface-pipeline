@@ -49,3 +49,12 @@ class LLMResponse(BaseModel):
 
     error: Optional[str] = None
 
+
+class BotResponse(BaseModel):
+    """Simplified response wrapper returned by the ResilienceBot.
+
+    Only contains the final text produced by the bot; additional fields can
+    be added later if more metadata is needed.
+    """
+    text: str
+

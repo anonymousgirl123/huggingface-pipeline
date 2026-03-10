@@ -1,0 +1,52 @@
+Title: Intermittent 504 Gateway Timeouts
+Type: incident
+Tags: gateway, timeouts, upstream, latency
+
+Symptoms:
+- Spike in 504s at the API gateway
+- Upstream latency increases
+- Retries amplify traffic
+
+Common causes:
+- Connection pool exhaustion
+- Slow downstream dependency (DB, cache, third-party)
+- Timeout mismatch between gateway and upstream service
+
+Operational Observations:
+During peak load windows the gateway started returning HTTP 504 responses.
+Metrics showed that request latency between the gateway and the upstream
+order-processing service increased gradually over 15 minutes before the
+first timeout errors appeared.
+
+Gateway logs indicated that connections to the upstream service were
+remaining open for longer than expected. As connection pools filled,
+new requests were forced to wait for a free connection slot.
+
+Common Diagnostic Steps:
+1. Check upstream latency dashboards.
+2. Inspect connection pool usage metrics.
+3. Review gateway timeout configuration.
+4. Look for recent deployment changes in upstream services.
+
+Commands Used:
+kubectl logs gateway-service
+kubectl top pods
+curl -v https://api.internal/orders/health
+
+Potential Root Causes:
+- upstream service thread starvation
+- inefficient database queries
+- network congestion between gateway and service mesh
+- incorrect timeout configuration between gateway and backend
+
+Mitigation:
+- Reduce retry aggressiveness
+- Increase upstream pool limits
+- Add DB index for slow queries
+- Align timeouts across gateway/upstream
+
+Long-Term Improvements:
+Introduce request queue limits at the gateway.
+Monitor connection pool usage with alerts.
+Implement circuit breaker patterns to isolate slow services.
+
